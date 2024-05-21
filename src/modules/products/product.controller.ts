@@ -90,8 +90,38 @@ const getSingleProductByID = async (req: Request, res: Response) => {
   }
 };
 
+const updateProduct = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    const zodParsedData = productValidationSchema.parse(req.body);
+    const result = await productServices.updateProductInDB(
+      productId,
+      zodParsedData,
+    );
+    if (result) {
+      const { _id, ...data } = result.toObject();
+      res.status(200).json({
+        success: true,
+        message: 'Product updated successfully!',
+        data: data,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: 'Product not found',
+      });
+    }
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Something went wrong',
+    });
+  }
+};
+
 export const productController = {
   createProduct,
   getAllProducts,
   getSingleProductByID,
+  updateProduct,
 };
