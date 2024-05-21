@@ -2,6 +2,7 @@ import { error } from 'console';
 import { productServices } from './product.service';
 import productValidationSchema from './product.validation';
 import { Request, Response } from 'express';
+import { Product } from './product.model';
 
 const createProduct = async (req: Request, res: Response) => {
   try {
@@ -60,6 +61,12 @@ const getAllProducts = async (req: Request, res: Response) => {
     });
   }
 };
+
+const getSingleProductByID= async(req:Request
+    ,res:Response)=>{
+        const {productId}=req.params;
+        const result = await Product.findOne({_id:})
+    }
 
 export const productController = {
   createProduct,
