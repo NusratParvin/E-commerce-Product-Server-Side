@@ -1,9 +1,6 @@
-import { error } from 'console';
 import { productServices } from './product.service';
 import productValidationSchema from './product.validation';
 import { Request, Response } from 'express';
-import { Product } from './product.model';
-import { receiveMessageOnPort } from 'worker_threads';
 
 const createProduct = async (req: Request, res: Response) => {
   try {
@@ -29,36 +26,62 @@ const createProduct = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: 'Something went wrong',
-      result: error.message,
+      error: error.message,
     });
   }
 };
 
 const getAllProducts = async (req: Request, res: Response) => {
   try {
-    const result = await productServices.getAllProductsFromDB();
+    const { searchTerm } = req.query;
+    if (searchTerm) {
+      const result = await productServices.searchProductsInDB(
+        searchTerm as string,
+      );
 
-    if (result) {
       const formattedProducts = result.map((singleProduct) => {
         const { _id, ...data } = singleProduct.toObject();
         return data;
       });
-      res.status(200).json({
-        success: true,
-        message: 'Products fetched successfully!',
-        data: formattedProducts,
-      });
+      if (formattedProducts.length > 0) {
+        res.status(200).json({
+          success: true,
+          message: `Products matching search term '${searchTerm}' fetched successfully!`,
+          data: formattedProducts,
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: `No product found matching search term '${searchTerm}'`,
+          data: null,
+        });
+      }
     } else {
-      res.status(400).json({
-        success: false,
-        message: 'Product not created',
-        data: null,
-      });
+      const result = await productServices.getAllProductsFromDB();
+
+      if (result) {
+        const formattedProducts = result.map((singleProduct) => {
+          const { _id, ...data } = singleProduct.toObject();
+          return data;
+        });
+        res.status(200).json({
+          success: true,
+          message: 'Products fetched successfully!',
+          data: formattedProducts,
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: 'Product not Found',
+          data: null,
+        });
+      }
     }
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Something went wrong',
+      message: 'Something went wrong',
+      error: error.message,
     });
   }
 };
@@ -85,7 +108,8 @@ const getSingleProductByID = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Something went wrong',
+      message: 'Something went wrong',
+      error: error.message,
     });
   }
 };
@@ -114,14 +138,42 @@ const updateProduct = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Something went wrong',
+      message: 'Something went wrong',
+      error: error.message,
     });
   }
 };
 
+const deleteProduct = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    const result = await productServices.deleteProductFromDB(productId);
+
+    if (result.deletedCount === 1) {
+      // Check if a document was actually deleted
+      res.status(200).json({
+        success: true,
+        message: 'Product deleted successfully!',
+        data: null,
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'Product not found',
+      });
+    }
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: 'Something went wrong',
+      error: error.message,
+    });
+  }
+};
 export const productController = {
   createProduct,
   getAllProducts,
   getSingleProductByID,
   updateProduct,
+  deleteProduct,
 };
