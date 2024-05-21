@@ -3,6 +3,7 @@ import { productServices } from './product.service';
 import productValidationSchema from './product.validation';
 import { Request, Response } from 'express';
 import { Product } from './product.model';
+import { receiveMessageOnPort } from 'worker_threads';
 
 const createProduct = async (req: Request, res: Response) => {
   try {
@@ -62,13 +63,35 @@ const getAllProducts = async (req: Request, res: Response) => {
   }
 };
 
-const getSingleProductByID= async(req:Request
-    ,res:Response)=>{
-        const {productId}=req.params;
-        const result = await Product.findOne({_id:})
+const getSingleProductByID = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    const result = await productServices.getSingleProductByIDFromDB(productId);
+    console.log(result);
+    if (result) {
+      const { _id, ...data } = result.toObject();
+
+      res.status(200).json({
+        success: true,
+        message: 'Product fetched successfully!',
+        data: data,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: 'Product not found',
+      });
     }
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Something went wrong',
+    });
+  }
+};
 
 export const productController = {
   createProduct,
   getAllProducts,
+  getSingleProductByID,
 };
