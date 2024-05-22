@@ -46,37 +46,39 @@ const createOrder = async (req: Request, res: Response) => {
 
 const getAllOrders = async (req: Request, res: Response) => {
   try {
-    const orders = await orderServices.getAllOrdersFromDB();
-    res.status(200).json({
-      success: true,
-      message: 'Orders fetched successfully!',
-      data: orders,
-    });
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: 'Something went wrong',
-      error: error.message,
-    });
-  }
-};
-
-const getOrdersByEmail = async (req: Request, res: Response) => {
-  try {
     const { email } = req.query;
-    const result = await orderServices.getOrdersByEmailFromDB(email as string);
-
-    if (result) {
-      res.status(200).json({
-        success: true,
-        message: `Orders fetched successfully for user email ${email}!`,
-        data: result,
-      });
+    if (email) {
+      const result = await orderServices.getOrdersByEmailFromDB(
+        email as string,
+      );
+      if (result.length > 0) {
+        res.status(200).json({
+          success: true,
+          message: `Orders fetched successfully for user email ${email}!`,
+          data: result,
+        });
+      } else {
+        res.status(200).json({
+          success: true,
+          message: `No orders found for user email ${email}!`,
+          data: null,
+        });
+      }
     } else {
-      res.status(400).json({
-        success: false,
-        message: `No order found for user email ${email}!`,
-      });
+      const result = await orderServices.getAllOrdersFromDB();
+      if (result.length > 0) {
+        res.status(200).json({
+          success: true,
+          message: 'Orders fetched successfully!',
+          data: result,
+        });
+      } else {
+        res.status(200).json({
+          success: true,
+          message: 'No order found',
+          data: null,
+        });
+      }
     }
   } catch (error: any) {
     res.status(500).json({
@@ -90,5 +92,4 @@ const getOrdersByEmail = async (req: Request, res: Response) => {
 export const orderController = {
   createOrder,
   getAllOrders,
-  getOrdersByEmail,
 };

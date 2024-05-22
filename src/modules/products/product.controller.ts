@@ -1,3 +1,4 @@
+import { date } from 'zod';
 import { productServices } from './product.service';
 import productValidationSchema from './product.validation';
 import { Request, Response } from 'express';
@@ -39,11 +40,11 @@ const getAllProducts = async (req: Request, res: Response) => {
         searchTerm as string,
       );
 
-      const formattedProducts = result.map((singleProduct) => {
-        const { _id, ...data } = singleProduct.toObject();
-        return data;
-      });
-      if (formattedProducts.length > 0) {
+      if (result.length > 0) {
+        const formattedProducts = result.map((singleProduct) => {
+          const { _id, ...data } = singleProduct.toObject();
+          return data;
+        });
         res.status(200).json({
           success: true,
           message: `Products matching search term '${searchTerm}' fetched successfully!`,
@@ -59,7 +60,7 @@ const getAllProducts = async (req: Request, res: Response) => {
     } else {
       const result = await productServices.getAllProductsFromDB();
 
-      if (result) {
+      if (result.length > 0) {
         const formattedProducts = result.map((singleProduct) => {
           const { _id, ...data } = singleProduct.toObject();
           return data;
@@ -103,6 +104,7 @@ const getSingleProductByID = async (req: Request, res: Response) => {
       res.status(400).json({
         success: false,
         message: 'Product not found',
+        data: null,
       });
     }
   } catch (error: any) {
@@ -133,6 +135,7 @@ const updateProduct = async (req: Request, res: Response) => {
       res.status(400).json({
         success: false,
         message: 'Product not found',
+        data: null,
       });
     }
   } catch (error: any) {
@@ -150,7 +153,6 @@ const deleteProduct = async (req: Request, res: Response) => {
     const result = await productServices.deleteProductFromDB(productId);
 
     if (result.deletedCount === 1) {
-      // Check if a document was actually deleted
       res.status(200).json({
         success: true,
         message: 'Product deleted successfully!',
