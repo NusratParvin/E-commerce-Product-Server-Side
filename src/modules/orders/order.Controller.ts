@@ -17,10 +17,15 @@ const createOrder = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     if (error instanceof z.ZodError) {
+      console.log(error.errors[0].message);
       res.status(400).json({
         success: false,
         message: 'Validation error',
-        errors: error.errors,
+        // errors: error.errors[0].message,
+        errors: error.errors.map((err) => ({
+          path: err.path.join('.'),
+          message: err.message,
+        })),
       });
     } else if (error.message === 'Product not found') {
       res.status(400).json({
@@ -52,10 +57,14 @@ const getAllOrders = async (req: Request, res: Response) => {
         email as string,
       );
       if (result.length > 0) {
+        const formattedOrders = result.map((singleOrder) => {
+          const { _id, ...data } = singleOrder.toObject();
+          return data;
+        });
         res.status(200).json({
           success: true,
           message: `Orders fetched successfully for user email ${email}!`,
-          data: result,
+          data: formattedOrders,
         });
       } else {
         res.status(200).json({
@@ -67,10 +76,14 @@ const getAllOrders = async (req: Request, res: Response) => {
     } else {
       const result = await orderServices.getAllOrdersFromDB();
       if (result.length > 0) {
+        const formattedOrders = result.map((singleOrder) => {
+          const { _id, ...data } = singleOrder.toObject();
+          return data;
+        });
         res.status(200).json({
           success: true,
           message: 'Orders fetched successfully!',
-          data: result,
+          data: formattedOrders,
         });
       } else {
         res.status(200).json({
@@ -81,11 +94,20 @@ const getAllOrders = async (req: Request, res: Response) => {
       }
     }
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: 'Something went wrong',
-      error: error.message,
-    });
+    if (error instanceof z.ZodError) {
+      console.log(error);
+      res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.errors[0].message,
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Something went wrong',
+        error: error.message,
+      });
+    }
   }
 };
 

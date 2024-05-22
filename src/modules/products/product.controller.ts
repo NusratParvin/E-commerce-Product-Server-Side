@@ -1,4 +1,4 @@
-import { date } from 'zod';
+import { date, z } from 'zod';
 import { productServices } from './product.service';
 import productValidationSchema from './product.validation';
 import { Request, Response } from 'express';
@@ -165,11 +165,20 @@ const deleteProduct = async (req: Request, res: Response) => {
       });
     }
   } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: 'Something went wrong',
-      error: error.message,
-    });
+    if (error instanceof z.ZodError) {
+      console.log(error);
+      res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: error.errors[0].message,
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Something went wrong',
+        error: error.message,
+      });
+    }
   }
 };
 export const productController = {
