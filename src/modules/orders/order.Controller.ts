@@ -69,7 +69,7 @@ const getAllOrders = async (req: Request, res: Response) => {
       } else {
         res.status(200).json({
           success: true,
-          message: `No orders found for user email ${email}!`,
+          message: `Order not found for user email ${email}!`,
           data: null,
         });
       }
