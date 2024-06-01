@@ -70,7 +70,7 @@ const getAllOrders = async (req: Request, res: Response) => {
         res.status(400).json({
           success: false,
           message: `Order not found for user email ${email}!`,
-          data: null,
+          // data: null,
         });
       }
     } else {
@@ -89,7 +89,7 @@ const getAllOrders = async (req: Request, res: Response) => {
         res.status(400).json({
           success: false,
           message: 'No order found',
-          data: null,
+          // data: null,
         });
       }
     }

@@ -24,7 +24,7 @@ const createProduct = async (req: Request, res: Response) => {
       res.status(400).json({
         success: false,
         message: 'Product not created',
-        data: null,
+        // data: null,
       });
     }
   } catch (error: any) {
@@ -58,7 +58,7 @@ const getAllProducts = async (req: Request, res: Response) => {
         res.status(400).json({
           success: false,
           message: `No product found matching search term '${searchTerm}'`,
-          data: null,
+          // data: null,
         });
       }
     } else {
@@ -78,7 +78,7 @@ const getAllProducts = async (req: Request, res: Response) => {
         res.status(400).json({
           success: false,
           message: 'Product not Found',
-          data: null,
+          // data: null,
         });
       }
     }
@@ -117,7 +117,7 @@ const getSingleProductByID = async (req: Request, res: Response) => {
       res.status(400).json({
         success: false,
         message: 'Product not found',
-        data: null,
+        // data: null,
       });
     }
   } catch (error: any) {
@@ -148,7 +148,7 @@ const updateProduct = async (req: Request, res: Response) => {
       res.status(400).json({
         success: false,
         message: 'Product not found',
-        data: null,
+        // data: null,
       });
     }
   } catch (error: any) {
