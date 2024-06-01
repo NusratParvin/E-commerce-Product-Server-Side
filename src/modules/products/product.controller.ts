@@ -2,19 +2,23 @@ import { date, z } from 'zod';
 import { productServices } from './product.service';
 import productValidationSchema from './product.validation';
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
+
+const isValidObjectId = (id: string) => mongoose.Types.ObjectId.isValid(id);
 
 const createProduct = async (req: Request, res: Response) => {
   try {
     const zodParsedData = productValidationSchema.parse(req.body);
 
     const result = await productServices.createProductInDB(zodParsedData);
+    console.log(result);
     if (result) {
-      const { _id, ...data } = result.toObject();
+      // const { _id, ...data } = result.toObject();
 
       res.status(200).json({
         success: true,
         message: 'Product created successfully!',
-        data: data,
+        data: result,
       });
     } else {
       res.status(400).json({
@@ -41,14 +45,14 @@ const getAllProducts = async (req: Request, res: Response) => {
       );
 
       if (result.length > 0) {
-        const formattedProducts = result.map((singleProduct) => {
-          const { _id, ...data } = singleProduct.toObject();
-          return data;
-        });
+        // const formattedProducts = result.map((singleProduct) => {
+        //   const { _id, ...data } = singleProduct.toObject();
+        //   return data;
+        // });
         res.status(200).json({
           success: true,
           message: `Products matching search term '${searchTerm}' fetched successfully!`,
-          data: formattedProducts,
+          data: result,
         });
       } else {
         res.status(400).json({
@@ -61,14 +65,14 @@ const getAllProducts = async (req: Request, res: Response) => {
       const result = await productServices.getAllProductsFromDB();
 
       if (result.length > 0) {
-        const formattedProducts = result.map((singleProduct) => {
-          const { _id, ...data } = singleProduct.toObject();
-          return data;
-        });
+        // const formattedProducts = result.map((singleProduct) => {
+        //   const { _id, ...data } = singleProduct.toObject();
+        //   return data;
+        // });
         res.status(200).json({
           success: true,
           message: 'Products fetched successfully!',
-          data: formattedProducts,
+          data: result,
         });
       } else {
         res.status(400).json({
@@ -90,15 +94,24 @@ const getAllProducts = async (req: Request, res: Response) => {
 const getSingleProductByID = async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
+
+    // Validate productId
+    if (!isValidObjectId(productId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid Product ID',
+      });
+    }
+
     const result = await productServices.getSingleProductByIDFromDB(productId);
     console.log(result);
     if (result) {
-      const { _id, ...data } = result.toObject();
+      // const { _id, ...data } = result.toObject();
 
       res.status(200).json({
         success: true,
         message: 'Product fetched successfully!',
-        data: data,
+        data: result,
       });
     } else {
       res.status(400).json({
@@ -125,11 +138,11 @@ const updateProduct = async (req: Request, res: Response) => {
       zodParsedData,
     );
     if (result) {
-      const { _id, ...data } = result.toObject();
+      // const { _id, ...data } = result.toObject();
       res.status(200).json({
         success: true,
         message: 'Product updated successfully!',
-        data: data,
+        data: result,
       });
     } else {
       res.status(400).json({

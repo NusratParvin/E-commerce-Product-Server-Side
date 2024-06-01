@@ -57,14 +57,14 @@ const getAllOrders = async (req: Request, res: Response) => {
         email as string,
       );
       if (result.length > 0) {
-        const formattedOrders = result.map((singleOrder) => {
-          const { _id, ...data } = singleOrder.toObject();
-          return data;
-        });
+        // const formattedOrders = result.map((singleOrder) => {
+        //   const { _id, ...data } = singleOrder.toObject();
+        //   return data;
+        // });
         res.status(200).json({
           success: true,
           message: `Orders fetched successfully for user email ${email}!`,
-          data: formattedOrders,
+          data: result,
         });
       } else {
         res.status(200).json({
@@ -76,14 +76,14 @@ const getAllOrders = async (req: Request, res: Response) => {
     } else {
       const result = await orderServices.getAllOrdersFromDB();
       if (result.length > 0) {
-        const formattedOrders = result.map((singleOrder) => {
-          const { _id, ...data } = singleOrder.toObject();
-          return data;
-        });
+        // const formattedOrders = result.map((singleOrder) => {
+        //   // const { _id, ...data } = singleOrder.toObject();
+        //   return data;
+        // });
         res.status(200).json({
           success: true,
           message: 'Orders fetched successfully!',
-          data: formattedOrders,
+          data: result,
         });
       } else {
         res.status(200).json({
